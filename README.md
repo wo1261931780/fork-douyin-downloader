@@ -1,7 +1,113 @@
+# 📱 fork-douyin-downloader - 抖音下载器
 
-💾 本程序中大量使用了ChatGPT生成的代码，如有bug，请在issue中提出。
+![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)
+![License](https://img.shields.io/badge/License-Unknown-lightgrey)
 
-👉 想要了解如何使用ChatGPT写程序，可以加群交流。
+## 📖 项目简介
+
+fork-douyin-downloader是抖音视频下载工具,支持下载抖音视频、图片、音乐等内容,提供增量更新和数据库管理功能。支持单个作品、用户主页、直播、合集等多种下载模式。
+
+## 📦 项目来源
+
+- **原项目**: 未知(待确认)
+- **原作者**: 未知
+- **开源协议**: 未明确标注(需查看原项目)
+- **Fork时间**: 2024年
+
+## 🔧 二次开发内容
+
+本项目为原项目的学习研究版本,主要用途:
+- 学习短视频平台的下载原理
+- 研究增量更新和数据持久化方法
+- 了解反爬虫策略和应对措施
+
+## ⚠️ 免责声明
+
+本项目仅供学习研究使用,请勿用于商业用途或非法用途。使用本项目所产生的一切后果由使用者自行承担。
+
+## 系统架构 | System Architecture
+
+```mermaid
+graph TB
+    subgraph Input["📥 输入模块"]
+        A[分享链接] --> B[URL解析器]
+        C[网页URL] --> B
+        D[直播间链接] --> B
+        B --> E[链接类型识别]
+    end
+    
+    subgraph Core["⚙️ 核心引擎"]
+        E --> F{链接类型}
+        F -->|单个作品| G[视频下载器]
+        F -->|用户主页| H[主页爬虫]
+        F -->|直播| I[直播解析器]
+        F -->|合集| J[合集处理器]
+        F -->|音乐集合| K[音乐下载器]
+        
+        H --> L[作品列表获取]
+        L --> M[增量更新检测]
+        M --> N[数据库查询]
+    end
+    
+    subgraph Download["⬇️ 下载处理"]
+        G --> O[去水印处理]
+        N --> O
+        O --> P[多线程下载]
+        P --> Q[视频文件]
+        P --> R[封面图片]
+        P --> S[音乐文件]
+        P --> T[头像图片]
+    end
+    
+    subgraph Storage["💾 数据持久化"]
+        Q --> U[文件存储]
+        R --> U
+        S --> U
+        T --> U
+        N --> V[SQLite数据库]
+        V --> W[增量更新支持]
+    end
+    
+    style A fill:#e1f5ff
+    style C fill:#e1f5ff
+    style D fill:#e1f5ff
+    style U fill:#c8e6c9
+    style V fill:#c8e6c9
+    style F fill:#fff9c4
+```
+
+## 数据流转流程 | Data Flow
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant C as CLI/配置文件
+    participant P as 解析器
+    participant A as 抖音API
+    participant D as 下载器
+    participant DB as 数据库
+    participant FS as 文件系统
+    
+    U->>C: 输入链接和配置
+    C->>P: 解析URL类型
+    P->>A: 请求作品/用户信息
+    A->>P: 返回数据JSON
+    
+    alt 首次下载
+        P->>DB: 插入作品记录
+        P->>D: 启动下载任务
+        D->>A: 获取无水印视频URL
+        D->>FS: 保存视频/封面/音乐
+    else 增量更新
+        P->>DB: 查询已下载记录
+        DB->>P: 返回已存在作品ID
+        P->>P: 过滤已下载作品
+        P->>D: 下载新作品
+    end
+    
+    D->>FS: 保存所有资源
+    FS->>U: 下载完成通知
+```
 
 # 抖音批量下载工具功能介绍
 
